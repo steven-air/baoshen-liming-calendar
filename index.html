@@ -278,9 +278,22 @@ function lMonthDays(y,m){return (LUNAR_INFO[y-1900]&(0x10000>>m))?30:29}
 function lYearDays(y){let s=348;for(let i=0x8000;i>0x8;i>>=1)s+=(LUNAR_INFO[y-1900]&i)?1:0;return s+lLeapDays(y)}
 const LUNAR_BASE=Date.UTC(1900,0,31);
 const _lunarCache=new Map();
+// 优先使用浏览器原生的中国农历实现，避免内置年份表在闰月处发生整月偏移。
+const _intlLunar=new Intl.DateTimeFormat('en-u-ca-chinese',{year:'numeric',month:'numeric',day:'numeric',timeZone:'UTC'});
 function solar2lunar(date){
   const k=date.getFullYear()+'-'+date.getMonth()+'-'+date.getDate();
   if(_lunarCache.has(k))return _lunarCache.get(k);
+  const utcDate=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate(),12));
+  const parts=_intlLunar.formatToParts(utcDate);
+  const monthPart=parts.find(p=>p.type==='month'),dayPart=parts.find(p=>p.type==='day'),yearPart=parts.find(p=>p.type==='relatedYear');
+  if(monthPart&&dayPart&&yearPart){
+    const monthMatch=monthPart.value.match(/^(\d+)(?:bis)?$/);
+    if(monthMatch){
+      const res={year:Number(yearPart.value),month:Number(monthMatch[1]),day:Number(dayPart.value),isLeap:/bis$/.test(monthPart.value)};
+      _lunarCache.set(k,res);return res;
+    }
+  }
+  // 原始表算法作为旧浏览器的兼容回退。
   let offset=Math.floor((Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())-LUNAR_BASE)/86400000);
   if(offset<0)return null;
   let y=1900;
