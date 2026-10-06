@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保身立命 · 戒期日历</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Serif SC','Songti SC','SimSun',serif;line-height:1.75;color:#33302a;
+  background:radial-gradient(1100px 480px at 50% -120px,rgba(158,42,34,.07),transparent 60%),#f4eee0;}
+.page{max-width:1180px;margin:0 auto;padding:26px 18px 56px}
+.site-header{text-align:center;padding:18px 0 4px}
+.title-row{display:flex;align-items:center;justify-content:center;gap:18px}
+.title-row h1{font-size:42px;font-weight:900;letter-spacing:14px;text-indent:14px;color:#8f2418}
+.seal{width:52px;height:52px;background:#9e2a22;color:#fdf6ec;display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:900;border-radius:9px;transform:rotate(6deg);box-shadow:0 3px 9px rgba(120,30,20,.28)}
+.subtitle{letter-spacing:6px;color:#8a7f6a;font-size:15px;margin-top:6px}
+.intro{max-width:780px;margin:22px auto 0;background:rgba(255,252,244,.75);border:1px solid #e2d8c0;border-left:4px solid #a8842c;
+  padding:13px 20px;font-size:13.5px;color:#6d6353;text-align:justify;border-radius:6px}
+.clock-bar{text-align:center;margin:18px 0 20px;font-size:13.5px;color:#8f2418;letter-spacing:1px}
+.clock-bar b{font-size:16px}
+.clock-bar .time{color:#4a4235;font-variant-numeric:tabular-nums}
+.clock-bar .sep{color:#c9b98a;margin:0 8px}
+.main-grid{display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:20px;align-items:start}
+.card{background:#fdfaf1;border:1px solid #e2d8c0;box-shadow:0 2px 12px rgba(90,70,40,.09);border-radius:10px}
+.calendar-card{padding:18px 18px 12px}
+.cal-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.nav{display:flex;align-items:center;gap:6px}
+.nav button{width:34px;height:34px;border:1px solid #d8cdb2;background:#fff;border-radius:7px;cursor:pointer;font-size:15px;color:#6d6353;transition:.15s}
+.nav button:hover:not(:disabled){background:#f5edd8;border-color:#a8842c}
+.nav button:disabled{opacity:.32;cursor:default}
+.ym{min-width:150px;text-align:center;font-size:22px;font-weight:700;color:#4a4235;letter-spacing:2px}
+#todayBtn{padding:8px 20px;border:1.5px solid #8f2418;color:#8f2418;background:transparent;border-radius:7px;cursor:pointer;
+  font-size:14px;letter-spacing:3px;font-family:inherit;transition:.2s}
+#todayBtn:hover{background:#8f2418;color:#fdfaf1}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;font-size:12.5px;color:#6d6353;padding:10px 0;border-bottom:1px solid #eee4cd}
+.dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+.dot.d1{background:#8f2418}.dot.d2{background:#c2452f}.dot.d4{background:#a8842c}.dot.d3{background:#3e7d54}
+.dot.d5{background:transparent;box-shadow:inset 0 0 0 2.5px #a8842c}
+.week-row{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:13px;color:#8a7f6a;padding:8px 0;border-bottom:1px solid #eee4cd;letter-spacing:2px}
+.week-row .wk-end{color:#8f2418}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.day-cell{min-height:66px;padding:7px 2px 5px;text-align:center;cursor:pointer;position:relative;border-bottom:1px solid #f0e8d4;
+  display:flex;flex-direction:column;align-items:center;transition:background .15s}
+.day-cell:not(.out):hover{background:#f6efdb}
+.day-cell.out{opacity:.32}
+.day-cell .num{display:inline-flex;width:32px;height:32px;border-radius:50%;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#fff}
+.st-major .num{background:#8f2418}.st-minor .num{background:#c2452f}.st-zhai .num{background:#a8842c}.st-safe .num{background:#3e7d54}
+.day-cell.today .num{box-shadow:0 0 0 2.5px #fdfaf1,0 0 0 4.5px #5a4513}
+.day-cell.selected{background:#f6efdb}
+.day-cell.selected::before{content:'';position:absolute;inset:2px;border:1.5px solid #a8842c;border-radius:7px;pointer-events:none}
+.day-cell .sub{font-size:11px;margin-top:3px;color:#7c7362;line-height:1.3}
+.st-major .sub{color:#8f2418;font-weight:600}.st-minor .sub{color:#a63b26}.st-safe .sub{color:#33684a}.st-zhai .sub{color:#8a6a1c}
+.day-cell .sub.term{color:#a8842c;font-weight:700}
+.st-major::after{content:'忌';position:absolute;top:3px;right:4px;font-size:9px;color:#8f2418;border:1px solid #c98073;border-radius:3px;padding:0 2px;line-height:1.35}
+.cal-footnote{font-size:11.5px;color:#a09478;text-align:center;padding:10px 4px 4px;line-height:1.8}
+.detail-card{padding:20px 20px 12px;position:sticky;top:14px;max-height:calc(100vh - 30px);overflow-y:auto}
+.d-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #eee4cd;padding-bottom:12px}
+.d-date{font-size:24px;font-weight:700;color:#3a352c}
+.d-week{color:#a8842c;font-size:14px;letter-spacing:3px;margin-top:2px}
+.today-badge{flex-shrink:0;background:#9e2a22;color:#fdf6ec;font-size:12px;letter-spacing:2px;padding:3px 10px;border-radius:12px;margin-top:6px}
+.d-lunar{font-size:13px;color:#7c7362;margin:10px 0 2px}
+.d-term{background:#faf4e0;border:1px solid #e5d6ab;color:#8a6d1f;font-size:12.5px;padding:9px 11px;border-radius:7px;margin:10px 0}
+.d-term b{font-size:14px}
+.d-title{font-size:13px;letter-spacing:3px;color:#8f2418;margin:14px 0 2px;display:flex;align-items:center;gap:8px}
+.d-title::after{content:'';flex:1;height:1px;background:#eee4cd}
+.d-title.zt{color:#a8842c}
+.item{padding:8px 0 7px;border-bottom:1px dashed #ece2c8}
+.item .t b{font-size:13.5px;color:#4a4235;font-weight:700}
+.item.major .t b{color:#7c1f14}
+.item .r{display:block;font-size:12px;color:#8a7f6a;margin-top:1px;line-height:1.65}
+.item .c{font-size:12px;margin-top:3px;font-weight:600}
+.item.major .c{color:#a24a3d}.item.minor .c{color:#8a6d1f}.item.zhai .c{color:#a8842c}
+.item.zhai .t b{color:#7a5c14}
+.safe-box{margin-top:12px;background:#eef5ec;border:1px solid #c4d9bd;color:#2f5c40;padding:16px 12px;border-radius:7px;font-size:14px;text-align:center;line-height:2}
+.zhai-box{margin-top:12px;background:#faf3df;border:1px solid #dcc98e;color:#7a5c14;padding:14px 12px;border-radius:7px;font-size:13.5px;text-align:center;line-height:2}
+.zhai-box span{font-size:12px;color:#a08a4a}
+.d-gloss{font-size:11.5px;color:#a09478;margin-top:12px;border-top:1px dashed #e2d8c0;padding-top:9px;line-height:1.8}
+.notes{margin-top:38px}
+.section-title{text-align:center;font-size:25px;font-weight:700;color:#3a352c;letter-spacing:7px}
+.section-sub{text-align:center;color:#8a7f6a;font-size:13px;margin:6px 0 20px;letter-spacing:2px}
+.notes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.note-card{background:#fdfaf1;border:1px solid #e2d8c0;border-radius:9px;padding:16px 18px}
+.note-card h3{font-size:16px;color:#8f2418;letter-spacing:4px;border-bottom:2px solid #c98073;display:inline-block;padding-bottom:2px;margin-bottom:10px}
+.note-card ul{list-style:none;font-size:12.5px}
+.note-card li{padding:4px 0;border-bottom:1px dotted #eee4cd;display:flex;justify-content:space-between;gap:10px}
+.note-card li b{flex-shrink:0;font-weight:600;color:#4a4235}
+.note-card li span{text-align:right;color:#8a7f6a}
+.extra-bar{margin-top:14px;background:#faf4e0;border:1px dashed #cbb877;border-radius:9px;padding:14px 20px;font-size:13px;color:#6d6353;text-align:justify}
+.exhort{margin-top:16px;background:rgba(158,42,34,.05);border:1px solid #e0c4bb;border-radius:9px;padding:16px 22px;font-size:13.5px;color:#6d4a42;text-align:justify}
+.article-section{margin-top:42px;background:#fdfaf1;border:1px solid #e2d8c0;border-radius:11px;padding:30px 32px}
+.article-meta{text-align:center;font-size:12.5px;color:#a09478;letter-spacing:2px;margin:6px 0 18px}
+.excerpt{max-width:740px;margin:0 auto;background:rgba(168,132,44,.07);border:1px solid #e5d6ab;border-radius:8px;padding:18px 24px;font-size:14.5px;text-align:justify;color:#4a4235}
+.toggle-btn{display:block;margin:20px auto 0;padding:9px 32px;border:1.5px solid #8f2418;background:transparent;color:#8f2418;border-radius:24px;cursor:pointer;
+  font-size:14px;letter-spacing:3px;font-family:inherit;transition:.2s}
+.toggle-btn:hover{background:#8f2418;color:#fff}
+.full-article{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s ease}
+.full-article.open{grid-template-rows:1fr}
+.fa-clip{overflow:hidden;min-height:0}
+.fa-body{max-width:760px;margin:0 auto;padding-top:28px;font-size:14.5px}
+.fa-body h3{font-size:17px;color:#8f2418;letter-spacing:2px;margin:28px 0 10px;padding-left:12px;border-left:4px solid #a8842c}
+.fa-body p{margin-bottom:13px;text-align:justify}
+.fa-note{font-size:12.5px;color:#8a7f6a;background:#f6f0dd;padding:9px 14px;border-radius:6px;margin:10px 0 16px;text-align:justify}
+.fa-origin{font-size:13px;color:#8a7f6a;border-top:1px dashed #d8cdb2;padding-top:14px;margin-top:20px;text-align:justify}
+.site-footer{margin-top:38px;text-align:center;font-size:12px;color:#a09478;line-height:2.1;border-top:1px solid #e2d8c0;padding-top:18px}
+@media (max-width:980px){
+  .main-grid{grid-template-columns:1fr}
+  .detail-card{position:static;max-height:none}
+  .notes-grid{grid-template-columns:1fr}
+  .title-row h1{font-size:32px;letter-spacing:8px;text-indent:8px}
+  .article-section{padding:22px 16px}
+  .day-cell{min-height:56px}
+  .day-cell .num{width:28px;height:28px;font-size:14px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="site-header">
+    <div class="title-row"><h1>戒期日历</h1><span class="seal">戒</span></div>
+    <p class="subtitle">保身立命 · 戒期及天地人忌</p>
+    <blockquote class="intro">
+      福善祸淫的道理，已经说得十分详细了。至于夫妻之间的事，人们往往容易忽视，不知道一年之中，有应当断然斋戒的日子。人身的血气运行，原与天地节气的运行相呼应，倘若违背节气运行规律而流失精气，对自身精气的伤害便超过平日百倍。与其等到报应临头时追悔而无法挽回，不如遵守斋戒以求自新。
+    </blockquote>
+    <div class="clock-bar" id="clockBar"></div>
+  </header>
+
+  <main class="main-grid">
+    <section class="calendar-card card">
+      <div class="cal-toolbar">
+        <div class="nav">
+          <button id="prevYear" title="上一年">«</button>
+          <button id="prevMonth" title="上一月">‹</button>
+          <div class="ym" id="ymText"></div>
+          <button id="nextMonth" title="下一月">›</button>
+          <button id="nextYear" title="下一年">»</button>
+        </div>
+        <button id="todayBtn">回到今天</button>
+      </div>
+      <div class="legend">
+        <span><i class="dot d1"></i>大忌之日（后果凶险）</span>
+        <span><i class="dot d2"></i>戒期之日（神诞斋期干支）</span>
+        <span><i class="dot d4"></i>仅值斋戒月（别无戒期）</span>
+        <span><i class="dot d3"></i>毫无忌犯之日</span>
+        <span><i class="dot d5"></i>今日</span>
+      </div>
+      <div class="week-row"><span class="wk-end">日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="wk-end">六</span></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-footnote">※ 金色为「二分二至之月」：宜从惊蛰、芒种、白露、大雪各节禁起，戒过一月，惟此日别无其他戒期。<br>※ 深红为节气前三天后三天共七日（犯之必得危疾、急疾）等大忌；月小时三十戒期顺延于廿九；闰月仅行固定戒期与干支忌日。</div>
+    </section>
+
+    <aside class="detail-card card" id="detailPanel"></aside>
+  </main>
+
+  <section class="notes">
+    <h2 class="section-title">天地人忌</h2>
+    <p class="section-sub">—— 切宜禁戒 ——</p>
+    <div class="notes-grid">
+      <div class="note-card">
+        <h3>天 忌</h3>
+        <ul>
+          <li><b>酷暑严寒</b><span>犯之得重疾不救</span></li>
+          <li><b>烈风雷雨 · 天地晦冥</b><span>犯之产怪物身死</span></li>
+          <li><b>日月薄蚀 · 虹现地动</b><span>犯之产怪物身死</span></li>
+          <li><b>白昼</b><span>犯之减寿</span></li>
+          <li><b>星月之下 · 灯火之前</b><span>犯之皆减寿</span></li>
+        </ul>
+      </div>
+      <div class="note-card">
+        <h3>地 忌</h3>
+        <ul>
+          <li><b>庙宇寺观庵堂之内</b><span>犯之大减禄寿</span></li>
+          <li><b>井灶圊厕之侧</b><span>犯之恶神降胎</span></li>
+          <li><b>荒园冢墓尸柩之旁</b><span>产怪物身死</span></li>
+        </ul>
+      </div>
+      <div class="note-card">
+        <h3>人 忌</h3>
+        <ul>
+          <li><b>郁怒</b><span>大怒伤肝，犯之必病</span></li>
+          <li><b>远行</b><span>行房百里者病，百里行房者死</span></li>
+          <li><b>醉饱</b><span>醉饱行房，五脏反复</span></li>
+          <li><b>空腹</b><span>犯之伤元神</span></li>
+          <li><b>病后</b><span>犯之变证复发</span></li>
+          <li><b>胎前</b><span>犯之伤胎，有孕即宜分床绝欲</span></li>
+          <li><b>产后</b><span>十余日内犯之妇必死，百日内犯之妇必病</span></li>
+          <li><b>天癸来时</b><span>犯之成血痳证，男女俱病</span></li>
+          <li><b>竹席 · 薄衾</b><span>寒气入骨，易感寒气</span></li>
+          <li><b>窗隙有风宜避</b><span>夜深就枕宜戒</span></li>
+          <li><b>交合才毕</b><span>婴儿在旁啼哭，勿即与乳</span></li>
+          <li><b>交罢勿即挥扇</b><span>及饮冷茶水，恐致即死</span></li>
+          <li><b>一夕勿两度</b><span>勿服春方邪药，勿蓄缩不泄</span></li>
+          <li><b>生病生疮出痘</b><span>非十分复原万不可犯，犯则多半必死</span></li>
+          <li><b>目疾</b><span>未愈或始愈，犯之必瞎</span></li>
+          <li><b>虚劳证</b><span>虽养好强健，犹须断欲一年</span></li>
+          <li><b>伤损筋骨</b><span>好后犹须戒百七八十日，未过百日犯之必死</span></li>
+          <li><b>过辛苦操心热惊恐忧愁</b><span>犯之轻则痼疾，重则即死</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="extra-bar">
+      <b>另须自行留意之忌日：</b>祖先亡忌日、父母诞日与忌日（犯之皆减寿一年）；己身夫妇本命诞日（犯之皆减寿）；拈香持斋供谢佛之日（犯之减寿一年）；社日受胎者，毛发皆白。以上戒期，每年俱宜按照时宪书逐月查明录出，遵依禁戒。
+    </div>
+    <div class="exhort">
+      按照逐月戒期及天地人忌等日，每月尚有六七日毫无忌犯之日。保身之士，每月本属至多三四次，故能疾病不侵，精神强固；而且寡欲者必多生男，后嗣身体亦必强固。彼少年新娶，往往纵欲伤身，使百年好合一时耗丧殆尽，深可悲也。何不谨守戒期、保身立命，使日后有偕老齐眉之境、子孙众多之庆、天伦尽享之乐？
+    </div>
+  </section>
+
+  <section class="article-section">
+    <h2 class="section-title">求子三要</h2>
+    <p class="article-meta">恭录自《寿康宝鉴》 · 2021-12-03</p>
+    <div class="excerpt">
+      <p>第一，节制性欲，保养身体，为胎儿培育好先天条件。第二，勉力实行敦伦尽分，积累功德，为孩子立好福基。第三，做好胎教和幼教，以免孩子长大后心无主见，随波逐流。这三条要事，务必切实遵行。再以至诚心，礼拜、称念观世音菩萨，祈求赐给有福德智慧、能光耀祖宗、贡献国家社会、有德有才的贤良儿女。这样去做，一定能所求如愿，不辜负大士圣恩！</p>
+    </div>
+    <button class="toggle-btn" id="articleToggle">展开阅读全文 ▾</button>
+    <div class="full-article" id="fullArticle">
+      <div class="fa-clip">
+        <div class="fa-body">
+          <h3>第一要 · 节欲保身，以培先天</h3>
+          <p>若不节制性欲，精气既薄又弱，必难受孕。即使受孕，也必难以长大成人。即使成人，由于先天不足，此子必定身体孱弱。既然没有强壮勇健的体魄，也就不可能有聪明敏锐的记忆心力，也必定会未老先衰，无所作为。这样求子，纵然观音菩萨大慈大悲，满你所愿，而你实在是太辜负菩萨的深恩大德了！</p>
+          <div class="fa-note">① 敦伦尽分：就是亲身去努力遵行"孝、悌、忠、信"伦理道德，各尽职责。即是对国家要忠诚，对父母要孝顺，对朋友要守信用，对兄要恭敬，对弟要友爱。</div>
+          <h3>第二要 · 敦伦积德，以立福基</h3>
+          <p>要想生出有福气、有道德、有智慧，将来光宗耀祖，为国家建立丰功伟业的儿女，自己必须敦厚伦常，克尽本分，孝顺父母，恭敬兄长，爱护弟弟，夫妻和谐，善待一切眷属，怜悯体谅仆人、使女，这是对家庭而言。至于对亲戚朋友、街坊邻居及单位同事，都应当和睦相处，随缘劝化，使年老的知道善教子女，年少的懂得要孝养父母、尊敬长者。经常把"闲邪存诚、诸恶莫作、众善奉行、戒杀护生、吃素念佛、发愿求生西方极乐世界、永远出离六道轮回苦海"的道理，普遍为一切同人恳切演说，使大众培植出世胜因，大家都成为遵守道德规范的良民。能够照这样去做的人，他的一举一动，都可以利益自己、他人；他的一言一行，都可堪称模范。那么他所生的儿女，必能超群拔萃，大有作为。观音菩萨固然有求必应，满足我们的心愿，我们也可以教养出才德兼备的优秀儿女，来安慰观音菩萨慈佑众生的苦心了。</p>
+          <div class="fa-note">① 闲邪存诚：防范邪恶枉曲之念，存养诚信真实之心。</div>
+          <h3>第三要 · 胎幼善教，以免随流</h3>
+          <p>我国古代的圣人，都是由于智慧贤明的父母善于教育而成就的，更何况凡夫俗子，不致力于善教怎么行呢？如果求儿女的人肯采用正确的胎教方法，其儿女日后肯定会贤良慈悲。方法是从怀孕后，自己的举止、容貌都必须端庄诚静，言语必须忠厚平和，行为必须孝顺父母，友爱兄弟，恭敬顺从，并在行、住、坐、卧中，时刻称念观音菩萨圣号。无论是出声念，还是心中默念，都要摄耳谛听，这样听，心就归于一，功德更大。如果衣冠整齐，手、口都已洗漱干净，则出声念、默念均可；如果是没有洗漱干净，或在不洁净的地方，或睡觉时，都要默念。默念功德一样，此时此处出声念不合仪式。但如果妇女临产之时，就不可默念，因为临产时，要用力气送出胎儿，若闭口默念，可能导致闭气生病。此时不仅产妇自己念，家属都要为之助念，这样肯定不会难产，也不会有产后的各种危险。如果真正能够谨慎遵行，使身、口、意三业清净，再加上虔诚恳切地念观音菩萨圣号，使胎儿禀承其淳善正气，那么生下的孩子，肯定不会是平凡之辈。</p>
+          <p>到了孩子开始懂事的时候，就要对他讲因果报应及利人利物者必昌、害人害物者必亡的道理。必须使他明白，只有利人利物才是真正的利益自己；害人害物，则更甚于祸害自己；行善必得善报，作恶必招祸殃。另外，还要对孩子讲如何做人的道理，要遵行孝、悌、忠、信、礼、义、廉、耻这八种道德，才不愧作为一个人，不然的话，虽样子是人，而内心却同禽兽一般。还要教育他不许说谎话，不许撒娇疯癫，不许拿人家的东西，不许打人骂人，不许遭践虫蚁、字纸、五谷等东西。自己的一切所作所为，都必须对亲人对自己有利益，而对他人对事无有损害。又必须叫孩子常念观音圣号，用以消除宿世恶业，增长善根福德。儿童时期养成了这个习惯，长大后必定淳朴厚道，不至于骄傲自满，目中无人，而成为不知天高地厚的狂妄之徒。能这样去善教儿女，则对祖宗就是大孝，对儿女就是大慈，对国家社会就是大忠。我常说，治国平天下的大权，女人家掌握了一大半，其原因就在于此。</p>
+          <p>女人若能依教遵行，那么她的美德堪追周朝三太，才不辜负"太太"这尊贵的称号。希望求子的人，都能照这样去做，则家庭有幸，国家有幸了。</p>
+          <div class="fa-note">① 周朝三太：指周代的太姜、太任、太姒祖孙三代女中圣人。太姜生泰伯、仲雍、季历三代圣人；太任生文王；太姒生武王、周公。这三代女圣，生祖孙三代数圣王，这一历史时期是千古最美好的盛世。后世称已婚的女人为"太太"，意思就是要学习效法周代的三太实行相夫教子之道，才不辜负"太太"这一无比尊贵的称号。</div>
+          <h3>附记禁忌，免致祸害</h3>
+          <p>凡求子者，必须夫妇订立条约，断欲事半年，为儿女培好先天条件。待妇人月经干净后同房一次，必定受孕。月经未干净，切不可同房，否则必造成停经，导致妇科疾病，很危险。又同房须选择天气清明的吉日良宵。大风大雨、雷电交加的日子，夫妻切戒同房。</p>
+          <p>例如《礼记·月令》中说："季春，先雷三日，遒人以木铎巡于道路曰：'雷将发声，有不戒其容止者，生子不备，必有凶灾。'"（春分前三日，官府派人敲击大铃高声通告众人说：雷将要发出巨大声响，有不戒除房事者，生下的儿女五官不完整，夫妻一定会有凶险灾难。）</p>
+          <p>古时圣王爱民如子，特派官员宣布此项政令，还要将它写入书中，真是天地父母之心呀！遒人，即宣告政令的官员。木铎，即铃，振铃让众人都能听到。巡，就是巡行。道路，即城市的街巷及乡村。容止，指夫妻房事。不备，即五官、四肢不全，或生怪物。凶灾，指夫妇或得恶疾，或致死亡。</p>
+          <p>既受孕后，应当断绝房事，则所生儿女，必定身心强健，福寿深长。怀孕后同房一次，胎毒就重一次，胞衣厚一次，生产难一次。若怀孕时间长，行房事，或导致堕胎，或者伤胎。</p>
+          <p class="fa-origin">浙江永嘉的张德田居士，悯念当今世道人心，愈趋愈下，于去年秋来函祈求我写《礼念观音求子疏》，并讲一下保身积德、善教儿女等的方法，希望所生的孩子，都能成为贤明善良的人，只有这样才能逐渐实现天下太平。我多次以年老作为推辞，他却屡次恳切请求，情难再却，只好作《礼念观音求子简疏》与《求子三要》，以塞其责。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    戒期资料录自《寿康宝鉴》〈保身立命戒期及天地人忌〉。<br>
+    农历、干支、节气均由程序即时推算（一九〇一至二〇九九年），如与历书偶有一日之差，谨以时宪书为准。本页仅供修身进德之参考。
+  </footer>
+</div>
+
+<script>
+'use strict';
+/* ================= 一、农历核心数据（1900–2100） ================= */
+const LUNAR_INFO=[0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+0x095b0,0x049b5,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae5,
+0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
+0x0d520];
+const LUNAR_MONTH=['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','腊月'];
+const LUNAR_DAY=['初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+function lLeapMonth(y){return LUNAR_INFO[y-1900]&0xf}
+function lLeapDays(y){return lLeapMonth(y)?((LUNAR_INFO[y-1900]&0x10000)?30:29):0}
+function lMonthDays(y,m){return (LUNAR_INFO[y-1900]&(0x10000>>m))?30:29}
+function lYearDays(y){let s=348;for(let i=0x8000;i>0x8;i>>=1)s+=(LUNAR_INFO[y-1900]&i)?1:0;return s+lLeapDays(y)}
+const LUNAR_BASE=Date.UTC(1900,0,31);
+const _lunarCache=new Map();
+function solar2lunar(date){
+  const k=date.getFullYear()+'-'+date.getMonth()+'-'+date.getDate();
+  if(_lunarCache.has(k))return _lunarCache.get(k);
+  let offset=Math.floor((Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())-LUNAR_BASE)/86400000);
+  if(offset<0)return null;
+  let y=1900;
+  while(y<2100&&offset>=lYearDays(y)){offset-=lYearDays(y);y++}
+  if(offset>=lYearDays(y))return null;
+  const leap=lLeapMonth(y);let m=1,isLeap=false;
+  while(m<=12){
+    const md=lMonthDays(y,m);
+    if(offset<md){break}
+    offset-=md;
+    if(leap===m){const ld=lLeapDays(y);if(offset<ld){isLeap=true;break}offset-=ld}
+    m++;
+  }
+  const res={year:y,month:m,day:offset+1,isLeap};
+  _lunarCache.set(k,res);return res;
+}
+/* ================= 二、干支与节气 ================= */
+const GAN='甲乙丙丁戊己庚辛壬癸',ZHI='子丑寅卯辰巳午未申酉戌亥';
+const GZ60=[];for(let i=0;i<60;i++)GZ60.push(GAN[i%10]+ZHI[i%12]);
+function getDayGZ(date){
+  const diff=Math.floor((Date.UTC(date.getFullYear(),date.getMonth(),date.getDate())-Date.UTC(1949,9,1))/86400000);
+  const idx=((diff%60)+60)%60;return{idx,name:GZ60[idx]};
+}
+const TERM_NAMES=['小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至'];
+const TERM_C21=[5.4055,20.12,3.87,18.73,5.63,20.646,4.81,20.1,5.52,21.04,5.678,21.37,7.108,22.83,7.5,23.13,7.646,23.042,8.318,23.438,7.438,22.36,7.18,21.9405];
+const TERM_C20=[6.11,20.84,4.6295,19.4599,6.3826,21.4155,5.59,20.888,6.318,21.86,6.5,22.20,7.928,23.65,8.35,23.95,8.44,23.822,9.098,24.218,8.218,23.08,7.9,22.60];
+const _termCache={};
+function getTermList(year){
+  if(_termCache[year])return _termCache[year];
+  const c=year>=2000?TERM_C21:TERM_C20,y=year-(year>=2000?2000:1900);
+  const list=TERM_NAMES.map((name,i)=>{
+    const L=i<=3?Math.floor((y-1)/4):Math.floor(y/4);
+    const day=Math.floor(y*0.2422+c[i])-L;
+    return{name,index:i,date:new Date(year,Math.floor(i/2),day)};
+  });
+  _termCache[year]=list;return list;
+}
+function getTermByName(year,name){return getTermList(year).find(t=>t.name===name)||null}
+function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+function dayDiff(a,b){return Math.round((Date.UTC(a.getFullYear(),a.getMonth(),a.getDate())-Date.UTC(b.getFullYear(),b.getMonth(),b.getDate()))/86400000)}
+function addDays(d,n){const r=new Date(d.getFullYear(),d.getMonth(),d.getDate());r.setDate(r.getDate()+n);return r}
+function findTermOnDate(date){return getTermList(date.getFullYear()).find(t=>sameDay(t.date,date))||null}
+function getYearGZ(date){
+  const y=date.getFullYear(),lichun=getTermByName(y,'立春').date;
+  const eff=date>=lichun?y:y-1,idx=((eff-1984)%60+60)%60;
+  return{idx,name:GZ60[idx],year:eff};
+}
+const JIE_ORDER=['立春','惊蛰','清明','立夏','芒种','小暑','立秋','白露','寒露','立冬','大雪','小寒'];
+const JIE_ZHI=[2,3,4,5,6,7,8,9,10,11,0,1];
+function getMonthGZ(date){
+  let best=null;
+  for(const y of[date.getFullYear()-1,date.getFullYear()])
+    for(let i=0;i<12;i++){const t=getTermByName(y,JIE_ORDER[i]).date;
+      if(dayDiff(date,t)>=0&&(!best||dayDiff(t,best.date)>0))best={date:t,jieIndex:i};}
+  const base={0:2,1:4,2:6,3:8,4:0,5:2,6:4,7:6,8:8,9:0}[getYearGZ(date).idx%10];
+  const ganIdx=(base+best.jieIndex)%10;
+  return{name:GAN[ganIdx]+ZHI[JIE_ZHI[best.jieIndex]]};
+}
+/* ================= 三、戒期数据（名称 / 原因 / 后果） ================= */
+const MONTHLY_FIXED={
+  1:[['月朔','朔为农历每月初一日（每月同）','夺纪']],
+  3:[['斗降','北斗星君下降之日（每月同）','夺纪']],
+  6:[['雷斋日','雷斋之日，宜持斋（每月同）','减寿']],
+  8:[['四天王巡行','四天王下界巡察善恶（每月同）','宜戒']],
+  14:[['四天王巡行','四天王下界巡察善恶（每月同）','减寿']],
+  15:[['月望','望为农历每月十五日（每月同）','夺纪'],['四天王巡行','四天王下界巡察善恶（每月同）','宜戒']],
+  23:[['四天王巡行','四天王下界巡察善恶（每月同）','宜戒']],
+  25:[['月晦日','每月同（晦本指每月最后一日，原书列于廿五）','减寿']],
+  27:[['斗降','北斗星君下降之日（每月同）','夺纪']],
+  28:[['人神在阴','人神在阴之日（每月同），宜先一日即戒','得病']],
+  29:[['四天王巡行','四天王下界巡察善恶（每月同）','宜戒']],
+  30:[['月晦 · 司命奏事','月之末日，司命灶君奏事于天（每月同）','减寿'],['四天王巡行','四天王下界巡察善恶（每月同，月小即戒廿九）','宜戒']]
+};
+const MS={
+1:{1:[['天腊','天腊之辰，玉帝校世人神气禄命','削禄夺纪']],
+3:[['万神都会','万神都会之辰','夺纪']],
+5:[['五虚忌','五虚，中医谓体虚之五种症状：脉细、皮寒、泄利前后、饮食不入、真气不足','宜戒']],
+6:[['六耗忌','阴、阳、晦、明、风、雨所导致的六种病，是谓六耗','宜戒']],
+7:[['上会日','上会之日','损寿']],
+8:[['五殿阎罗天子诞','五殿阎罗天子圣诞','夺纪']],
+9:[['玉皇上帝诞','玉皇上帝圣诞','夺纪']],
+13:[['杨公忌','杨公忌日','宜戒']],
+14:[['三元降','三官大帝下降之日','减寿']],
+15:[['三元降','三官大帝下降之日','减寿'],['上元神会','上元神会之辰','夺纪'],['三元日','正月十五为上元，三元之日','犯之减寿五年']],
+16:[['三元降','三官大帝下降之日','减寿']],
+19:[['长春真人诞','长春真人圣诞','宜戒']],
+23:[['三尸神奏事','三尸神上奏人过之日','宜戒']],
+25:[['天地仓开日','天地仓开之日','损寿、子带疾']]},
+2:{1:[['一殿秦广王诞','一殿秦广王圣诞','夺纪']],
+2:[['万神都会','万神都会之辰','夺纪']],
+3:[['文昌帝君诞','文昌帝君圣诞','削禄夺纪']],
+6:[['东华帝君诞','东华帝君圣诞','宜戒']],
+8:[['释迦牟尼佛出家','释迦牟尼佛出家纪念日','夺纪'],['三殿宋帝王诞','三殿宋帝王圣诞','宜戒'],['张大帝诞','张大帝圣诞','宜戒']],
+11:[['杨公忌','杨公忌日','宜戒']],
+15:[['释迦牟尼佛般涅槃','释迦牟尼佛涅槃纪念日','宜戒'],['太上老君诞','太上老君圣诞','削禄夺纪']],
+17:[['东方杜将军诞','东方杜将军圣诞','宜戒']],
+18:[['四殿五官王诞','四殿五官王圣诞','宜戒'],['至圣先师孔子讳辰','至圣先师孔子讳辰','削禄夺纪']],
+19:[['观音大士诞','观音大士圣诞','夺纪']],
+21:[['普贤菩萨诞','普贤菩萨圣诞','宜戒']]},
+3:{1:[['二殿楚江王诞','二殿楚江王圣诞','夺纪']],
+3:[['玄天上帝诞','玄天上帝（真武大帝）圣诞','夺纪']],
+8:[['六殿卞城王诞','六殿卞城王圣诞','夺纪']],
+9:[['牛鬼神出','牛鬼神出之日','产恶胎'],['杨公忌','杨公忌日','宜戒']],
+12:[['中央五道诞','中央五道神圣诞','宜戒']],
+15:[['玄坛诞','玄坛真君圣诞','夺纪'],['昊天上帝诞','昊天上帝圣诞','宜戒']],
+16:[['准提菩萨诞','准提菩萨圣诞','夺纪']],
+18:[['中岳大帝诞','中岳大帝圣诞','宜戒'],['后土娘娘诞','后土娘娘圣诞','宜戒'],['三茅降','三茅真君下降之日','宜戒']],
+20:[['天地仓开日','天地仓开之日','损寿'],['子孙娘娘诞','子孙娘娘圣诞','宜戒']],
+27:[['七殿泰山王诞','七殿泰山王圣诞','夺纪']],
+28:[['苍颉至圣先师诞','苍颉至圣先师圣诞','削禄夺纪'],['东岳大帝诞','东岳大帝圣诞','宜戒']]},
+4:{1:[['八殿都市王诞','八殿都市王圣诞','夺纪']],
+4:[['万神善化','万神善化之辰','失瘏夭胎'],['文殊菩萨诞','文殊菩萨圣诞','宜戒']],
+7:[['南斗北斗西斗同降','南斗、北斗、西斗星君同降之日','减寿'],['杨公忌','杨公忌日','宜戒']],
+8:[['释迦牟尼佛诞','释迦牟尼佛圣诞','夺纪'],['万神善化','万神善化之辰','失瘏夭胎'],['善恶童子降','善恶童子下降，察录人间善恶','血死'],['九殿平等王诞','九殿平等王圣诞','宜戒']],
+14:[['纯阳祖师诞','纯阳祖师吕洞宾圣诞','减寿']],
+15:[['钟离祖师诞','钟离祖师圣诞','夺纪']],
+16:[['天地仓开日','天地仓开之日','损寿']],
+17:[['十殿转轮王诞','十殿转轮王圣诞','夺纪']],
+18:[['天地仓开日','天地仓开之日','宜戒'],['紫微大帝诞','紫微大帝圣诞','减寿']],
+20:[['眼光圣母诞','眼光圣母圣诞','宜戒']]},
+5:{1:[['南极长生大帝诞','南极长生大帝圣诞','夺纪']],
+5:[['地腊','地腊之辰，五帝校定生人官爵','削禄夺纪'],['九毒日','九毒日之首日（五月俗称毒月）','夭亡奇祸不测'],['杨公忌','杨公忌日','宜戒']],
+6:[['九毒日','九毒日','夭亡奇祸不测']],
+7:[['九毒日','九毒日','夭亡奇祸不测']],
+8:[['南方五道诞','南方五道神圣诞','宜戒']],
+11:[['天仓开日','天仓开之日','损寿'],['天下都城隍诞','天下都城隍圣诞','宜戒']],
+12:[['炳灵公诞','炳灵公圣诞','宜戒']],
+13:[['关圣降神','关圣帝君降神之日','削禄夺纪']],
+14:[['天地交泰','夜子时为天地交泰之日','三年内夫妇俱亡']],
+15:[['九毒日','九毒日','夭亡奇祸不测']],
+16:[['九毒日','九毒日','夭亡奇祸不测'],['天地元气造化万物之辰','天地元气造化万物之辰','三年内夫妇俱亡']],
+17:[['九毒日','九毒日','夭亡奇祸不测']],
+18:[['张天师诞','张天师圣诞','宜戒']],
+22:[['孝娥神诞','孝娥神圣诞','夺纪']],
+25:[['九毒日','九毒日','夭亡奇祸不测']],
+26:[['九毒日','九毒日','夭亡奇祸不测']],
+27:[['九毒日','九毒日','夭亡奇祸不测']]},
+6:{3:[['杨公忌','杨公忌日','宜戒']],
+4:[['南赡部洲转大法轮','南赡部洲转大法轮之日','损寿']],
+6:[['天仓开日','天仓开之日','损寿']],
+10:[['金粟如来诞','金粟如来圣诞','宜戒']],
+13:[['井泉龙王诞','井泉龙王圣诞','宜戒']],
+19:[['观音大士成道日','观音大士成道（涅槃）之日','夺纪']],
+23:[['南方火神诞','南方火神圣诞','遭回禄']],
+24:[['雷祖诞','雷祖圣诞','宜戒'],['关帝诞','关圣帝君圣诞','削禄夺纪']]},
+7:{1:[['杨公忌','杨公忌日','夺纪']],
+5:[['中会日','中会之日（一作初七）','损寿']],
+7:[['道德腊','道德腊之辰，五帝校生人善恶','宜戒'],['魁星诞','魁星圣诞','削禄夺纪']],
+10:[['阴毒日','阴毒日','大忌']],
+12:[['长真谭真人诞','长真谭真人圣诞','宜戒']],
+13:[['大势至菩萨诞','大势至菩萨圣诞','减寿']],
+14:[['三元降','三官大帝下降之日','减寿']],
+15:[['三元降','三官大帝下降之日','宜戒'],['地官校籍','中元地官大帝校籍之辰','夺纪'],['三元日','七月十五为中元，三元之日','犯之减寿五年']],
+16:[['三元降','三官大帝下降之日','减寿']],
+18:[['西王母诞','西王母圣诞','夺纪']],
+19:[['太岁诞','太岁星君圣诞','夺纪']],
+22:[['增福财神诞','增福财神圣诞','削禄夺纪']],
+29:[['杨公忌','杨公忌日','宜戒']],
+30:[['地藏菩萨诞','地藏菩萨圣诞','夺纪']]},
+8:{1:[['许真君诞','许真君圣诞','宜戒']],
+3:[['北斗诞','北斗星君圣诞','削禄夺纪'],['司命灶君诞','司命灶君圣诞','遭回禄']],
+5:[['雷声大帝诞','雷声大帝圣诞','夺纪']],
+10:[['北斗大帝诞','北斗大帝圣诞','宜戒']],
+12:[['西方五道诞','西方五道神圣诞','宜戒']],
+15:[['太阴朝元','太阴朝元之辰，宜焚香守夜','暴亡']],
+16:[['天曹掠刷真君降','天曹掠刷真君下降之日','贫夭']],
+18:[['天人兴福之辰','天人兴福之辰，宜斋戒、存想吉事','宜戒']],
+23:[['汉桓侯张显王诞','汉桓侯张显王圣诞','宜戒']],
+24:[['灶君夫人诞','灶君夫人圣诞','宜戒']],
+27:[['至圣先师孔子诞','至圣先师孔子圣诞','削禄夺纪'],['杨公忌','杨公忌日','宜戒']],
+28:[['四天会事','四天王会集议事之辰','宜戒']],
+30:[['诸神考校','诸神考校人间善恶之日','夺算']]},
+9:{1:[['南斗诞','南斗星君圣诞','削禄夺纪']],
+3:[['五瘟神诞','五瘟神圣诞','宜戒']],
+9:[['斗母诞','斗母元君圣诞','削禄夺纪'],['酆都大帝诞','酆都大帝圣诞','宜戒'],['玄天上帝飞升','玄天上帝飞升之日','宜戒']],
+10:[['斗母降','斗母元君下降之日','夺纪']],
+11:[['宜戒之日','原书标明宜戒之日','宜戒']],
+13:[['孟婆尊神诞','孟婆尊神圣诞','宜戒']],
+17:[['金龙四大王诞','金龙四大王圣诞','水厄']],
+19:[['日宫月宫会合','日宫月宫会合之辰','宜戒'],['观世音菩萨出家日','观世音菩萨出家纪念日','减寿']],
+25:[['杨公忌','杨公忌日','宜戒']],
+30:[['药师琉璃光佛诞','药师琉璃光佛圣诞','得危疾']]},
+10:{1:[['民岁腊','民岁腊之辰','夺纪'],['四天王降','四天王下降之日','一年内死']],
+3:[['三茅诞','三茅真君圣诞','夺纪']],
+5:[['下会日','下会之日','损寿'],['达摩祖师诞','达摩祖师圣诞','宜戒']],
+6:[['天曹考察','天曹考察善恶之日','夺纪']],
+8:[['佛涅槃日','佛涅槃日，大忌色欲','大忌色欲']],
+10:[['四天王降','四天王下降之日','一年内死']],
+11:[['宜戒之日','原书标明宜戒之日','宜戒']],
+14:[['三元降','三官大帝下降之日','减寿']],
+15:[['三元降','三官大帝下降之日','宜戒'],['下元水府校籍','下元水府校籍之辰','夺纪'],['三元日','十月十五为下元，三元之日','犯之减寿五年']],
+16:[['三元降','三官大帝下降之日','减寿']],
+23:[['杨公忌','杨公忌日','宜戒']],
+27:[['北极紫微大帝降','北极紫微大帝下降之日','宜戒']]},
+11:{4:[['至圣先师孔子诞','至圣先师孔子圣诞','削禄夺纪']],
+6:[['西岳大帝诞','西岳大帝圣诞','宜戒']],
+11:[['天仓开日','天仓开之日','宜戒'],['太乙救苦天尊诞','太乙救苦天尊圣诞','夺纪']],
+15:[['月望之夜','月望之夜：上半夜犯者男死，下半夜犯者女死','上半夜犯男死，下半夜犯女死']],
+17:[['阿弥陀佛诞','阿弥陀佛圣诞','宜戒']],
+19:[['太阳日宫诞','太阳日宫圣诞','奇祸']],
+21:[['杨公忌','杨公忌日','宜戒']],
+23:[['张仙诞','张仙（送子张仙）圣诞','绝嗣']],
+25:[['掠刷大夫降','掠刷大夫下降之日','大凶']],
+26:[['北方五道诞','北方五道神圣诞','宜戒']]},
+12:{6:[['天仓开日','天仓开之日','宜戒']],
+7:[['掠刷大夫降','掠刷大夫下降之日','得恶疾']],
+8:[['王侯腊','王侯腊之辰（初旬内戊日亦名王侯腊）','夺纪'],['释迦如来成道日','释迦如来成道纪念日','宜戒']],
+12:[['太素三元君朝真','太素三元君朝真之日','宜戒']],
+16:[['南岳大帝诞','南岳大帝圣诞','宜戒']],
+19:[['杨公忌','杨公忌日','宜戒']],
+20:[['天地交道','天地交通之辰','促寿']],
+21:[['天猷上帝诞','天猷上帝圣诞','宜戒']],
+23:[['五岳神降','五岳神下降之日','宜戒']],
+24:[['司命朝天奏人善恶','司命灶君朝天，奏人善恶','大祸']],
+25:[['三清玉帝同降考察善恶','三清与玉帝同降，考察善恶','奇祸']],
+29:[['华严菩萨诞','华严菩萨圣诞','宜戒']],
+30:[['诸神下降察访善恶','诸神下降，察访人间善恶','犯者男女俱亡']]}
+};
+const YIN_CUO={1:'庚戌',2:'辛酉',3:'庚申',4:'丁未',5:'丙午',6:'丁巳',7:'甲辰',8:'乙卯',9:'甲寅',10:'癸丑',11:'壬子',12:'癸亥'};
+const YANG_CUO={1:'甲寅',2:'乙卯',3:'甲辰',4:'丁巳',5:'丙午',6:'丁未',7:'庚申',8:'乙酉',9:'庚戌',10:'癸亥',11:'壬子',12:'癸丑'};
+const YIN_TXT='正月庚戌、二月辛酉、三月庚申、四月丁未、五月丙午、六月丁巳、七月甲辰、八月乙卯、九月甲寅、十月癸丑、十一月壬子、十二月癸亥，此阴不足之日';
+const YANG_TXT='正月甲寅、二月乙卯、三月甲辰、四月丁巳、五月丙午、六月丁未、七月庚申、八月乙酉、九月庚戌、十月癸亥、十一月壬子、十二月癸丑，此阳不足之日';
+const SHI_E_DA_BAI={'甲':[[3,'戊戌'],[7,'癸亥'],[10,'丙申'],[11,'丁亥']],'己':[[3,'戊戌'],[7,'癸亥'],[10,'丙申'],[11,'丁亥']],
+'乙':[[4,'壬申'],[9,'乙巳']],'庚':[[4,'壬申'],[9,'乙巳']],'丙':[[3,'辛巳'],[9,'庚辰'],[10,'甲辰']],'辛':[[3,'辛巳'],[9,'庚辰'],[10,'甲辰']],'戊':[[6,'己丑']],'癸':[[6,'己丑']]};
+const SHI_E_TXT='甲己年三月戊戌、七月癸亥、十月丙申、十一月丁亥；乙庚年四月壬申、九月乙巳；丙辛年三月辛巳、九月庚辰、十月甲辰；丁壬年无忌；戊癸年六月己丑。此皆大不吉之日';
+const FEN_ZHI=['春分','秋分','夏至','冬至'],SI_LI=['立春','立夏','立秋','立冬'];
+const TERM_DESC={'春分':'雷将发声。犯者生子五官四肢不全，父母有灾。宜从惊蛰节禁起，戒过一月。',
+'秋分':'杀气浸盛，阳气日衰。宜从白露节禁起，戒过一月。',
+'夏至':'阴阳相争，死生分判之时。宜从芒种节禁起，戒过一月。',
+'冬至':'阴阳相争，死生分判之时。宜从大雪节禁起，戒过一月。半夜子时犯之，主一年内亡。',
+'立春':'四立之日，犯之减寿五年（前一日为四绝日）。','立夏':'四立之日，犯之减寿五年（前一日为四绝日）。',
+'立秋':'四立之日，犯之减寿五年（前一日为四绝日）。','立冬':'四立之日，犯之减寿五年（前一日为四绝日）。'};
+const MAJOR_KEYS=['夭','亡','死','祸','凶','绝嗣','血死','危疾','急疾','暴亡','恶疾','产恶胎','大忌','大不吉','水厄','一年内'];
+function severityOf(s){return MAJOR_KEYS.some(k=>s.includes(k))?'major':'minor'}
+/* ================= 四、逐日戒期收集 ================= */
+const _aux={};
+function nthGanAfter(from,nth,ganIdx){let d=addDays(from,1),n=0;
+  while(n<nth){if(getDayGZ(d).idx%10===ganIdx)n++;if(n<nth)d=addDays(d,1)}return d}
+function nthZhiAfter(from,nth,zhiIdx){let d=addDays(from,1),n=0;
+  while(n<nth){if(getDayGZ(d).idx%12===zhiIdx)n++;if(n<nth)d=addDays(d,1)}return d}
+function getFuDates(y){const a=_aux[y]=_aux[y]||{};
+  if(!a.fu){const xz=getTermByName(y,'夏至').date,lq=getTermByName(y,'立秋').date;
+    a.fu=[nthGanAfter(xz,3,6),nthGanAfter(xz,4,6),nthGanAfter(lq,1,6)]}return a.fu}
+function getSheDates(y){const a=_aux[y]=_aux[y]||{};
+  if(!a.she)a.she={chun:nthGanAfter(getTermByName(y,'立春').date,5,4),qiu:nthGanAfter(getTermByName(y,'立秋').date,5,4)};return a.she}
+function getDZAux(y){const a=_aux[y]=_aux[y]||{};
+  if(!a.dz){const dz=getTermByName(y,'冬至').date;a.dz={date:dz,thirdXu:nthZhiAfter(dz,3,10)}}return a.dz}
+const ZHAI=[['惊蛰','春分'],['芒种','夏至'],['白露','秋分'],['大雪','冬至']];
+
+function collectItems(date,lunar,gz){
+  const items=[];
+  const push=(t,r,c,sev)=>items.push({t,r,c,sev:sev||severityOf(t+r+c)});
+  const lm=lunar.month,ld=lunar.day,isLeap=lunar.isLeap;
+  const monthLen=isLeap?lLeapDays(lunar.year):lMonthDays(lunar.year,lm);
+  const gan=gz.idx%10;
+  if(!isLeap){
+    const sp=MS[lm];
+    if(sp&&sp[ld])sp[ld].forEach(x=>push(x[0],x[1],x[2]));
+    if(lm===9&&ld<=9)push('北斗九星降','自初一至初九，北斗九星下降，此九日俱宜斋戒','夺纪');
+    if(YIN_CUO[lm]===gz.name)push('阴错日（'+gz.name+'日）',YIN_TXT,'俱宜戒');
+    if(YANG_CUO[lm]===gz.name)push('阳错日（'+gz.name+'日）',YANG_TXT,'俱宜戒');
+    const bad=SHI_E_DA_BAI[GAN[getYearGZ(date).idx%10]];
+    if(bad)for(const b of bad)if(b[0]===lm&&b[1]===gz.name)push('十恶大败日（'+gz.name+'日）',SHI_E_TXT,'大不吉之日，宜戒');
+  }
+  if(MONTHLY_FIXED[ld])MONTHLY_FIXED[ld].forEach(x=>push(x[0],x[1],x[2]));
+  if(ld===29&&monthLen===29)push('月晦 · 司命奏事','月小，即戒廿九（晦为月之末日，司命奏事）','减寿');
+  if(ld===7||ld===8)push('上弦日','上弦为每月初七、初八，弦日','犯之减寿一年');
+  if(ld===22||ld===23)push('下弦日','下弦为每月廿二、廿三，弦日','犯之减寿一年');
+  if((monthLen===30&&ld===18)||(monthLen===29&&ld===17))push('毁败日','毁败之日：大月十八日、小月十七日','犯之得病');
+  if(gan===2||gan===3)push(gz.name+'日（丙丁日）','日干属丙、丁（丙丁属火）','犯之得病');
+  if(gan===7)push(gz.name+'日（三辛日）','每月三个辛日','犯之减寿一年');
+  if(gz.name==='甲子')push('甲子日','六十甲子之首日','犯之减寿一年');
+  if(gz.name==='庚申')push('庚申日','庚申之日','犯之减寿一年');
+  const ygz=getYearGZ(date);
+  if(gz.idx===ygz.idx)push('太岁日（'+gz.name+'日）','日干支与当年太岁干支相同','犯之减寿');
+  const term=findTermOnDate(date),yT=findTermOnDate(addDays(date,-1));
+  if(term&&SI_LI.includes(term.name))push('四立日 · '+term.name,'四立：立春、立夏、立秋、立冬之日','犯之减寿五年');
+  if(yT){
+    if(FEN_ZHI.includes(yT.name))push('四离日（'+yT.name+'前一日）','四离：冬至、夏至、春分、秋分之前一日','犯之减寿五年');
+    else if(SI_LI.includes(yT.name))push('四绝日（'+yT.name+'前一日）','四绝：四立日之前一日','犯之减寿五年');
+  }
+  for(const name of FEN_ZHI){
+    const t=getTermByName(date.getFullYear(),name).date,diff=dayDiff(date,t);
+    if(diff>=-3&&diff<=3){
+      const pos=diff===0?'当日':(diff<0?'前'+(-diff)+'日':'后'+diff+'日');
+      const zhi=(name==='夏至'||name==='冬至');
+      push(name+'前三年后三日七日之期','今为'+name+pos+'（二分二至之前三后三共七日）'+(zhi?'，此二至乃阴阳绝续之交':''),zhi?'犯之必得急疾，尤宜切戒':'犯之必得危疾，尤宜切戒');
+    }
+  }
+  for(const y of[date.getFullYear()-1,date.getFullYear()])
+    for(const[from,to]of ZHAI){
+      const t=getTermByName(y,from).date,diff=dayDiff(date,t);
+      if(diff>=0&&diff<=29)push(to+'之月斋戒期','宜从'+from+'节禁起，戒过一月','宜斋戒','zhai');
+    }
+  getFuDates(date.getFullYear()).forEach((fd,i)=>{
+    if(sameDay(fd,date))push(['初伏日','中伏日','末伏日'][i]+'（三伏日）','夏至后第三庚日为初伏、第四庚日为中伏，立秋后第一庚日为末伏','犯之减寿一年')});
+  const she=getSheDates(date.getFullYear());
+  if(sameDay(she.chun,date))push('春社日','立春后第五个戊日为春社；社日受胎者，毛发皆白','犯之减寿五年');
+  if(sameDay(she.qiu,date))push('秋社日','立秋后第五个戊日为秋社；社日受胎者，毛发皆白','犯之减寿五年');
+  if(term&&term.name==='冬至')push('冬至半夜子时','冬至夜半子时，阴阳绝续之交','犯之皆主在一年内亡');
+  for(const y of[date.getFullYear(),date.getFullYear()-1]){
+    const dz=getDZAux(y),xc=getTermByName(y+1,'小寒').date;
+    if(dayDiff(date,dz.date)>0&&dayDiff(xc,date)>0){
+      if(gan===6)push('冬至后庚日（'+gz.name+'日）','冬至后之庚日','犯之皆主在一年内亡');
+      else if(gan===7)push('冬至后辛日（'+gz.name+'日）','冬至后之辛日','犯之皆主在一年内亡');
+    }
+    if(sameDay(dz.thirdXu,date))push('冬至后第三戌日（'+gz.name+'日）','自冬至起第三个戌日','犯之皆主在一年内亡');
+  }
+  const rank={major:0,minor:1,zhai:2};
+  items.sort((a,b)=>rank[a.sev]-rank[b.sev]);
+  return items;
+}
+const _dayCache=new Map();
+const pad=n=>(n<10?'0':'')+n;
+function fmtKey(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function getDayInfo(date){
+  const k=fmtKey(date);
+  if(_dayCache.has(k))return _dayCache.get(k);
+  const lunar=solar2lunar(date),gz=getDayGZ(date);
+  const info={date:new Date(date.getFullYear(),date.getMonth(),date.getDate()),lunar,gz,
+    items:lunar?collectItems(date,lunar,gz):[],term:findTermOnDate(date),
+    monthGZ:getMonthGZ(date),yearGZ:getYearGZ(date)};
+  _dayCache.set(k,info);return info;
+}
+function dayStatus(info){
+  if(!info.lunar)return'safe';
+  if(info.items.some(i=>i.sev==='major'))return'major';
+  if(info.items.some(i=>i.sev==='minor'))return'minor';
+  if(info.items.some(i=>i.sev==='zhai'))return'zhai';
+  return'safe';
+}
+/* ================= 五、渲染与交互 ================= */
+let curYear,curMonth,selected;
+function initToday(){const n=new Date();curYear=n.getFullYear();curMonth=n.getMonth();selected=new Date(n.getFullYear(),n.getMonth(),n.getDate())}
+initToday();
+const $=id=>document.getElementById(id);
+const grid=$('calGrid'),detail=$('detailPanel'),ym=$('ymText');
+
+function cellHTML(c){
+  const info=getDayInfo(c.date),st=dayStatus(info);
+  const now=new Date();
+  let sub='',term=false;
+  if(info.lunar){
+    if(info.lunar.day===1)sub=(info.lunar.isLeap?'闰':'')+LUNAR_MONTH[info.lunar.month-1];
+    else if(info.term){sub=info.term.name;term=true}
+    else sub=LUNAR_DAY[info.lunar.day-1];
+  }
+  return `<div class="day-cell st-${st}${c.out?' out':''}${sameDay(c.date,now)?' today':''}${sameDay(c.date,selected)?' selected':''}" data-d="${fmtKey(c.date)}">
+    <span class="num">${c.date.getDate()}</span><span class="sub${term?' term':''}">${sub}</span></div>`;
+}
+function renderCalendar(){
+  const first=new Date(curYear,curMonth,1),startW=first.getDay();
+  const days=new Date(curYear,curMonth+1,0).getDate();
+  const prevDays=new Date(curYear,curMonth,0).getDate();
+  const cells=[];
+  for(let i=startW-1;i>=0;i--)cells.push({date:new Date(curYear,curMonth-1,prevDays-i),out:true});
+  for(let i=1;i<=days;i++)cells.push({date:new Date(curYear,curMonth,i),out:false});
+  let nx=1;while(cells.length%7!==0)cells.push({date:new Date(curYear,curMonth+1,nx++),out:true});
+  grid.innerHTML=cells.map(cellHTML).join('');
+}
+function itemHTML(it){return `<div class="item ${it.sev}"><div class="t"><b>${it.t}</b>${it.r?'<span class="r">'+it.r+'</span>':''}</div><div class="c">${it.c||'宜戒'}</div></div>`}
+function renderDetail(){
+  const info=getDayInfo(selected),d=info.date,L=info.lunar;
+  const wk='日一二三四五六'[d.getDay()];
+  const now=new Date();
+  let lunarStr='';
+  if(L)lunarStr=`${info.yearGZ.name}年 ${L.isLeap?'闰':''}${LUNAR_MONTH[L.month-1]}${LUNAR_DAY[L.day-1]} · ${info.monthGZ.name}月 · ${info.gz.name}日`;
+  let termHtml='';
+  if(info.term)termHtml=`<div class="d-term">今日节气 · <b>${info.term.name}</b><br>${TERM_DESC[info.term.name]||''}</div>`;
+  const nz=info.items.filter(i=>i.sev!=='zhai'),zh=info.items.filter(i=>i.sev==='zhai');
+  let itemsHtml='';
+  if(nz.length){
+    itemsHtml=`<div class="d-title">本日戒期 · 共 ${nz.length} 项</div>`+nz.map(itemHTML).join('');
+    if(zh.length)itemsHtml+=`<div class="d-title zt">斋戒月提示</div>`+zh.map(itemHTML).join('');
+  }else if(zh.length){
+    const z=zh[0];
+    itemsHtml=`<div class="zhai-box">本日值${z.t}<br>${z.r}<br><span>（本日别无神诞、干支、节气等戒期）</span></div>`;
+  }else{
+    itemsHtml=`<div class="safe-box">本日为毫无忌犯之日 ✓<br>宜保精养神 · 清心寡欲</div>`;
+  }
+  detail.innerHTML=`
+    <div class="d-head"><div><div class="d-date">${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日</div>
+    <div class="d-week">星期${wk}</div></div>${sameDay(d,now)?'<span class="today-badge">今日</span>':''}</div>
+    <div class="d-lunar">${lunarStr}</div>
+    ${termHtml}${itemsHtml}
+    <div class="d-gloss">注：「夺纪」「夺算」皆减寿也——十二年为一纪，一百日为一算；「削禄夺纪」即削除禄籍、夺纪减寿。人身的血气运行与天地节气相呼应，谨守戒期，恭敬神明，当有所回避。</div>`;
+}
+function renderAll(){
+  ym.textContent=curYear+'年 '+(curMonth+1)+'月';
+  $('prevYear').disabled=curYear<=1901;$('nextYear').disabled=curYear>=2099;
+  $('prevMonth').disabled=curYear<=1901&&curMonth===0;
+  $('nextMonth').disabled=curYear>=2099&&curMonth===11;
+  renderCalendar();renderDetail();
+}
+function goMonth(n){const d=new Date(curYear,curMonth+n,1);
+  if(d.getFullYear()<1901||d.getFullYear()>2099)return;
+  curYear=d.getFullYear();curMonth=d.getMonth();renderAll()}
+ $('prevYear').onclick=()=>goMonth(-12);$('nextYear').onclick=()=>goMonth(12);
+ $('prevMonth').onclick=()=>goMonth(-1);$('nextMonth').onclick=()=>goMonth(1);
+ $('todayBtn').onclick=()=>{initToday();renderAll()};
+grid.addEventListener('click',e=>{
+  const cell=e.target.closest('.day-cell');if(!cell)return;
+  const[y,m,d]=cell.dataset.d.split('-').map(Number);
+  selected=new Date(y,m-1,d);
+  if(cell.classList.contains('out')){curYear=y;curMonth=m-1}
+  renderAll();
+});
+ $('articleToggle').addEventListener('click',function(){
+  const open=$('fullArticle').classList.toggle('open');
+  this.textContent=open?'收 起 全 文 ▴':'展开阅读全文 ▾';
+});
+const clockBar=$('clockBar');let _lastKey='';
+function tick(){
+  const n=new Date(),info=getDayInfo(n);
+  const cnt=info.items.filter(i=>i.sev!=='zhai').length,zh=info.items.some(i=>i.sev==='zhai');
+  clockBar.innerHTML=`<b>${n.getFullYear()}年${n.getMonth()+1}月${n.getDate()}日</b> 星期${'日一二三四五六'[n.getDay()]}
+   <span class="time">${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}</span>
+   <span class="sep">｜</span>${info.yearGZ.name}年 ${info.lunar.isLeap?'闰':''}${LUNAR_MONTH[info.lunar.month-1]}${LUNAR_DAY[info.lunar.day-1]}
+   <span class="sep">｜</span>今日戒期 <b>${cnt}</b> 项${zh?' · 值斋戒月':''}`;
+  const k=fmtKey(n);
+  if(k!==_lastKey){_lastKey=k;if(_lastKey)initToday();renderAll()}
+}
+renderAll();tick();setInterval(tick,1000);
+</script>
+</body>
+</html>
