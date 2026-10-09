@@ -113,51 +113,16 @@ body{font-family:'Noto Serif SC','Songti SC','SimSun',serif;line-height:1.75;col
   .day-cell{min-height:56px}
   .day-cell .num{width:28px;height:28px;font-size:14px}
 }
-
-/* 新版宣纸日历视觉：以参考图的黛青、朱砂、米白建立沉静的节令版式。 */
-:root{--paper:#f3eddf;--paper-deep:#e9dfca;--ink:#173b3a;--ink-soft:#48605a;--vermilion:#a7352d;--gold:#b98a3d;--line:#b9b59e;--sage:#d9e4d4;--mist:#edf1e6}
-body{color:var(--ink);background:radial-gradient(900px 420px at 50% -180px,rgba(255,255,255,.92),transparent 70%),linear-gradient(115deg,#e9e1d0 0%,#f5f0e4 45%,#e5dfcf 100%);background-attachment:fixed}
-body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.72' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E")}
-.page{max-width:1280px;padding:34px 26px 76px}
-.site-header{position:relative;padding:12px 0 28px}
-.site-header:before,.site-header:after{position:absolute;top:76px;color:rgba(23,59,58,.26);font-size:12px;letter-spacing:4px;writing-mode:vertical-rl;line-height:2.3}
-.site-header:before{content:"天有时 · 地有气";left:2px}.site-header:after{content:"人有道 · 立命而行";right:2px}
-.title-row{gap:14px}.title-row:before,.title-row:after{content:"";width:94px;height:1px;background:var(--line);position:relative}
-.title-row:before{box-shadow:12px 0 0 -0.5px var(--gold)}.title-row:after{box-shadow:-12px 0 0 -0.5px var(--gold)}
-.title-row h1{font-size:clamp(38px,5vw,66px);letter-spacing:12px;text-indent:12px;color:var(--ink);line-height:1.12}
-.title-row h1:after{content:"天地有时 · 人当自守";display:block;font-size:12px;letter-spacing:3px;text-indent:3px;color:var(--gold);margin-top:6px;font-weight:600}
-.seal{width:42px;height:42px;background:var(--vermilion);border-radius:3px;font-size:15px;writing-mode:vertical-rl;line-height:1.1;box-shadow:0 2px 6px rgba(112,34,28,.2)}
-.subtitle{margin-top:12px;font-size:17px;letter-spacing:9px;color:var(--ink);font-weight:700}
-.subtitle:after{content:"顺应天时 · 修身养性 · 趋吉避凶";display:block;font-size:12px;letter-spacing:3px;color:var(--ink-soft);margin-top:5px;font-weight:400}
-.intro{max-width:1020px;margin:24px auto 0;padding:18px 28px;background:rgba(255,252,244,.62);border:0;border-top:1px solid var(--gold);border-bottom:1px solid var(--gold);border-left:0;border-radius:0;color:#53635c;font-size:14px;line-height:2.05;box-shadow:none}
-.intro:before{content:"戒期序言";display:block;text-align:center;color:var(--vermilion);letter-spacing:5px;font-size:12px;margin-bottom:5px;font-weight:700}
-.clock-bar{margin:18px 0 22px;color:var(--vermilion);font-size:13px;letter-spacing:2px}.clock-bar .time{color:var(--ink)}
-.main-grid{grid-template-columns:minmax(0,1fr) 330px;gap:24px}
-.card{background:rgba(255,252,244,.7);border:1px solid rgba(98,111,93,.42);box-shadow:0 12px 30px rgba(65,59,42,.09);border-radius:14px}
-.calendar-card{padding:22px 22px 14px;position:relative;overflow:hidden}.calendar-card:before{content:"丁未年 · 戊寅月";position:absolute;right:22px;top:21px;color:rgba(23,59,58,.38);font-size:12px;letter-spacing:2px}
-.cal-toolbar{padding:5px 0 16px;border-bottom:1px solid var(--line)}.nav{gap:8px}.nav button{width:34px;height:34px;border:1px solid #adb5a1;background:rgba(255,255,255,.55);border-radius:50%;color:var(--ink);font-size:18px}.nav button:hover:not(:disabled){background:var(--ink);border-color:var(--ink);color:#fff}
-.ym{min-width:180px;font-size:27px;color:var(--ink);letter-spacing:4px}.ym:after{content:" · 月令清和";font-size:11px;letter-spacing:2px;color:var(--gold)}
-#todayBtn{padding:8px 17px;border:1px solid var(--vermilion);color:var(--vermilion);border-radius:20px;background:transparent;font-size:12px;letter-spacing:2px}#todayBtn:hover{background:var(--vermilion);color:#fff}
-.legend{justify-content:flex-start;gap:8px 18px;padding:14px 2px 12px;color:var(--ink-soft);border-bottom:1px solid rgba(185,181,158,.72);font-size:12px}.dot{width:10px;height:10px}.dot.d1{background:var(--vermilion)}.dot.d2{background:#d07a47}.dot.d4{background:#d5a72e}.dot.d3{background:#5d9575}.dot.d5{box-shadow:inset 0 0 0 2px var(--gold)}
-.week-row{color:var(--ink-soft);padding:11px 0 9px;border-bottom:2px solid var(--ink);font-size:13px;font-weight:700}.week-row .wk-end{color:var(--vermilion)}
-.cal-grid{border-left:1px solid rgba(98,111,93,.35);border-top:1px solid rgba(98,111,93,.35)}
-.day-cell{min-height:92px;padding:9px 5px 7px;border-right:1px solid rgba(98,111,93,.35);border-bottom:1px solid rgba(98,111,93,.35);align-items:flex-start;text-align:left;background:rgba(255,252,244,.22)}.day-cell:not(.out):hover{background:#f3ead4}.day-cell .num{width:auto;height:auto;border-radius:0;background:transparent!important;color:var(--ink);font-size:26px;font-weight:900;line-height:1}.day-cell .sub{font-size:11px;margin-top:7px;color:var(--ink-soft);line-height:1.45}.day-cell .sub.term{color:var(--gold)}.day-cell .num:after{content:"";display:block;width:22px;height:1px;background:var(--gold);margin-top:5px}.st-major .num{color:var(--vermilion)}.st-minor .num{color:#c96a36}.st-zhai .num{color:#ae7c1e}.st-safe .num{color:var(--ink)}.st-major::after{top:8px;right:7px;border:0;border-radius:0;color:var(--vermilion);font-weight:900;font-size:11px}.day-cell.today .num{box-shadow:none;color:var(--vermilion)}.day-cell.today .num:before{content:"今";position:absolute;right:7px;bottom:7px;color:var(--vermilion);font-size:10px;border:1px solid var(--vermilion);padding:0 2px;line-height:1.3}.day-cell.selected{background:#f3ead4}.day-cell.selected::before{inset:3px;border:1px solid var(--gold);border-radius:0}
-.cal-footnote{padding:14px 6px 2px;text-align:left;color:#7e8376;font-size:11px}
-.detail-card{padding:22px 22px 15px;top:22px;max-height:calc(100vh - 44px);background:rgba(249,246,235,.86)}.d-head{border-bottom:1px solid var(--line)}.d-date{font-size:25px;color:var(--ink)}.d-week{color:var(--gold)}.today-badge{background:var(--vermilion);border-radius:2px;padding:3px 9px}.d-lunar{color:var(--ink-soft)}.d-term{background:#f7efd9;border:1px solid #dccb99;color:#8a6b22;border-radius:3px}.d-title{color:var(--vermilion)}.d-title.zt{color:#9b7624}.item{border-bottom:1px dashed #d7d3be}.item .t b{color:var(--ink)}.item.major .t b{color:var(--vermilion)}.item .r{color:#718078}.safe-box{background:var(--mist);border:1px solid #bfd1bf;color:#37634d;border-radius:3px}.zhai-box{background:#f7efd9;border:1px solid #dccb99;color:#846621;border-radius:3px}.d-gloss{color:#8a8f84}
-.notes{margin-top:48px}.section-title{color:var(--ink);font-size:27px;letter-spacing:10px}.section-sub{color:var(--gold);letter-spacing:4px}.notes-grid{gap:16px}.note-card{background:rgba(255,252,244,.66);border:1px solid rgba(98,111,93,.38);border-radius:3px;padding:18px 20px}.note-card h3{color:var(--vermilion);border-bottom-color:#c68772}.note-card li{border-bottom-color:#dedac7}.note-card li b{color:var(--ink)}.note-card li span{color:#788179}.extra-bar{background:#f5eedb;border-color:#cbb57a;border-radius:3px;color:#6a746c}.exhort{background:rgba(167,53,45,.05);border-color:#d9b8ae;border-radius:3px;color:#70534e}
-.article-section{margin-top:48px;background:rgba(255,252,244,.68);border:1px solid rgba(98,111,93,.38);border-radius:3px;padding:34px 38px}.article-meta{color:#8b9389}.excerpt{background:#f5eedb;border-color:#dfcf9e;color:var(--ink);border-radius:3px}.toggle-btn{border-color:var(--vermilion);color:var(--vermilion);border-radius:3px}.toggle-btn:hover{background:var(--vermilion)}.fa-body h3{color:var(--vermilion);border-left-color:var(--gold)}.fa-note{background:#f3eddd}.site-footer{border-top-color:var(--line);color:#889087}
-@media (max-width:980px){.page{padding:20px 14px 52px}.site-header:before,.site-header:after{display:none}.title-row:before,.title-row:after{width:40px}.title-row h1{font-size:36px;letter-spacing:7px;text-indent:7px}.subtitle{font-size:14px;letter-spacing:5px}.intro{font-size:13px;padding:16px 12px}.main-grid{grid-template-columns:1fr}.detail-card{top:auto}.calendar-card:before{display:none}.day-cell{min-height:74px;padding:7px 4px}.day-cell .num{font-size:22px}.day-cell .sub{font-size:10px}}
-@media (max-width:560px){.page{padding-left:9px;padding-right:9px}.title-row:before,.title-row:after{display:none}.title-row h1{font-size:33px}.intro{font-size:12px;line-height:1.9}.clock-bar{font-size:11px}.calendar-card{padding:15px 9px 11px}.ym{min-width:140px;font-size:21px}.legend{gap:6px 10px;font-size:10px}.day-cell{min-height:67px;padding:6px 3px}.day-cell .num{font-size:19px}.day-cell .sub{font-size:9px;margin-top:5px}.cal-footnote{font-size:10px}.notes-grid{grid-template-columns:1fr}.article-section{padding:25px 15px}}
 </style>
 </head>
 <body>
 <div class="page">
 
   <header class="site-header">
-    <div class="title-row"><h1>保身立命</h1><span class="seal">原所</span></div>
-    <p class="subtitle">戒期日历 · 天地人忌</p>
+    <div class="title-row"><h1>戒期日历</h1><span class="seal">戒</span></div>
+    <p class="subtitle">保身立命 · 戒期及天地人忌</p>
     <blockquote class="intro">
-      福善祸淫的道理，已经说得十分详细了。至于夫妻之间的事，人们往往容易忽视，不知道一年当中，有应该断然斋戒的日子，例如《月令》上说：“春分前三日，官府派人敲击大铃高声通告众人说：‘雷将要发出巨大声响，有不戒除房事者，生下的儿女五官不完整，夫妻一定会有凶险灾难。’”人身的血气运行，原来与天地节气的运行相呼应，倘若违背节气运行规律而流失精气，那么人身的气血运行不能与天地节气的运行协调，对自身精气伤害比平时超过百倍。至于神明降察或圣诞之日，有些人不知道，也不懂得忌讳，而犯淫欲，以至于亵渎冒犯神明，冥冥之中受到谴责而不知。因此世上有人虽循谨忠厚，却常有多病短寿之患，又常有功名被削、年寿被减的祸报，这些往往都是因为不知“非时不淫；非处不淫；恭敬神明，当有所回避和忌讳”的缘故。与其等到报应临头时追悔而无法挽回，不如遵守斋戒以求自新。现恭录斋戒的日期，以及天地人的忌日，希望爱惜自身的人，都遵守它。
+      福善祸淫的道理，已经说得十分详细了。至于夫妻之间的事，人们往往容易忽视，不知道一年之中，有应当断然斋戒的日子。人身的血气运行，原与天地节气的运行相呼应，倘若违背节气运行规律而流失精气，对自身精气的伤害便超过平日百倍。与其等到报应临头时追悔而无法挽回，不如遵守斋戒以求自新。
     </blockquote>
     <div class="clock-bar" id="clockBar"></div>
   </header>
